@@ -2,40 +2,18 @@ module MongoMapper
   module Plugins
     module Accessible
       extend ActiveSupport::Concern
-
-      included do
-        class_attribute :_accessible_attributes
-      end
+      include ::ActiveModel::MassAssignmentSecurity
 
       module ClassMethods
-        def attr_accessible(*attrs)
-          raise AccessibleOrProtected.new(name) if try(:protected_attributes?)
-          self._accessible_attributes = Set.new(attrs) + (_accessible_attributes || [])
-        end
-
-        def accessible_attributes(*)
-          _accessible_attributes
-        end
-
         def accessible_attributes?
           _accessible_attributes?
         end
       end
 
-      def attributes=(attrs={})
-        super(filter_inaccessible_attrs(attrs))
-      end
-
-      def assign_attributes(new_attributes, options={})
-        self.attributes=(new_attributes)
-      end
-
-      def update_attributes(attrs={})
-        super(filter_inaccessible_attrs(attrs))
-      end
-
-      def update_attributes!(attrs={})
-        super(filter_inaccessible_attrs(attrs))
+      def attributes=(attributes={}, options = {})
+        role = options[:as] || :default
+        attributes = sanitize_for_mass_assignment(attributes, role) unless options[:without_protection]
+        super sanitize_for_mass_assignment(attributes)
       end
 
       def accessible_attributes(*args)
@@ -45,12 +23,6 @@ module MongoMapper
       def accessible_attributes?
         self.class.accessible_attributes?
       end
-
-      protected
-        def filter_inaccessible_attrs(attrs)
-          return attrs if !accessible_attributes? || attrs.blank?
-          attrs.dup.delete_if { |key, val| !accessible_attributes.include?(key.to_sym) }
-        end
     end
   end
 end
