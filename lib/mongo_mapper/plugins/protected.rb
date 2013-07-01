@@ -1,9 +1,7 @@
 # encoding: UTF-8
 begin
   require 'active_model/mass_assignment_security'
-  require 'active_support/backtrace_cleaner'
-rescue LoadError
-end
+rescue LoadError; end
 
 module MongoMapper
   module Plugins
