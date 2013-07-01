@@ -259,3 +259,12 @@ class Robot
   key :serial_number, String
   embedded_in :post
 end
+
+class Topic
+  include MongoMapper::Document
+  plugin MongoMapper::Plugins::MultiParameterAttributes
+
+  key :title,       String
+  key :last_read,   Date
+  key :written_on,  Time
+end
