@@ -21,7 +21,6 @@ module MongoMapper
     include Plugins::Modifiers
     include Plugins::Pagination
     include Plugins::Persistence
-    include Plugins::Accessible
     include Plugins::Protected
     include Plugins::Rails
     include Plugins::Safe # needs to be after querying (save_to_collection)
