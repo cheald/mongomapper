@@ -5,10 +5,7 @@ module MongoMapper
   module Plugins
     module Protected
       extend ActiveSupport::Concern
-
-      included do
-        extend ::ActiveModel::MassAssignmentSecurity
-      end
+      include ::ActiveModel::MassAssignmentSecurity
 
       module ClassMethods
         def key(*args)
@@ -17,13 +14,25 @@ module MongoMapper
           key
         end
 
+        def accessible_attributes?
+          _accessible_attributes?
+        end
+
         def protected_attributes?
-          !!(protected_attributes && !protected_attributes.empty?)
+          _protected_attributes?
         end
       end
 
       def protected_attributes
         self.class.protected_attributes
+      end
+
+      def accessible_attributes(*args)
+        self.class.accessible_attributes(*args)
+      end
+
+      def accessible_attributes?
+        self.class.accessible_attributes?
       end
 
       def attributes=(attributes={}, options = {})
