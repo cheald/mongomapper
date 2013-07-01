@@ -9,9 +9,9 @@ module MongoMapper
 
       module ClassMethods
         def key(*args)
-          key = super
-          attr_protected key.name.to_sym if key.options[:protected]
-          key
+          super.tap do |key|
+            attr_protected key.name.to_sym if key.options[:protected]
+          end
         end
 
         def accessible_attributes?
@@ -35,7 +35,7 @@ module MongoMapper
         self.class.accessible_attributes?
       end
 
-      def attributes=(attributes={}, options = {})
+      def assign_attributes(attributes = {}, options = {})
         return if attributes.nil? or attributes.empty?
         @mass_assignment_options = options
         attributes = sanitize_for_mass_assignment(attributes, mass_assignment_role) unless mass_assignment_options[:without_protection]

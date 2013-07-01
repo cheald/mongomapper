@@ -5,7 +5,7 @@ module MongoMapper
     module MultiParameterAttributes
       extend ActiveSupport::Concern
 
-      def attributes=(new_attributes = {})
+      def assign_attributes(new_attributes = {}, options = {})
         return unless new_attributes.is_a?(Hash)
 
         attributes                  = new_attributes.stringify_keys
@@ -20,8 +20,8 @@ module MongoMapper
           end
         end
 
-        assign_multiparameter_attributes(multi_parameter_attributes) unless multi_parameter_attributes.empty?
-        super(normal_attributes) unless normal_attributes.empty?
+        normal_attributes.merge! execute_callstack_for_multiparameter_attributes(extract_callstack_for_multiparameter_attributes(multi_parameter_attributes))
+        super(normal_attributes, options) unless normal_attributes.empty?
       end
 
       # Instantiates objects for all attribute classes that needs more than one constructor parameter. This is done
@@ -30,13 +30,8 @@ module MongoMapper
       # written_on (a date type) with Date.new("2004", "6", "24"). You can also specify a typecast character in the
       # parentheses to have the parameters typecasted before they're used in the constructor. Use i for Fixnum, f for Float,
       # s for String, and a for Array. If all the values for a given attribute are empty, the attribute will be set to nil.
-      def assign_multiparameter_attributes(pairs)
-        execute_callstack_for_multiparameter_attributes(
-          extract_callstack_for_multiparameter_attributes(pairs)
-        )
-      end
-
       def execute_callstack_for_multiparameter_attributes(callstack)
+        attrs = {}
         callstack.each do |name, values_with_empty_parameters|
           # in order to allow a date to be set without a year, we must keep the empty values.
           # Otherwise, we wouldn't be able to distinguish it from a date with an empty day.
@@ -63,13 +58,9 @@ module MongoMapper
           else
             value = nil
           end
-          writer_method = "#{name}="
-          if respond_to?(writer_method)
-            self.send(writer_method, value)
-          else
-            self[name.to_s] = value
-          end
+          attrs[name] = value
         end
+        attrs
       end
 
       # Ensures that values for date are set to now if blank (as month and say cannot be 0) and that all values are converted to integers
