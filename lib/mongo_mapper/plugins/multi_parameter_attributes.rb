@@ -5,23 +5,23 @@ module MongoMapper
     module MultiParameterAttributes
       extend ActiveSupport::Concern
 
-      def attributes=(new_attributes)
-        return if new_attributes.nil?
+      def attributes=(new_attributes = {})
+        return unless new_attributes.is_a?(Hash)
 
-        multi_parameter_attributes = []
-        normal_attributes = {}
+        attributes                  = new_attributes.stringify_keys
+        multi_parameter_attributes  = {}
+        normal_attributes           = {}
 
-        new_attributes.each do |k, v|
-          if k.to_s.include?("(")
-            multi_parameter_attributes << [ k.to_s, v ]
+        attributes.each do |k, v|
+          if k.include?("(")
+            multi_parameter_attributes[k] = v
           else
             normal_attributes[k] = v
           end
         end
 
-        assign_multiparameter_attributes(multi_parameter_attributes)
-
-        super(normal_attributes)
+        assign_multiparameter_attributes(multi_parameter_attributes) unless multi_parameter_attributes.empty?
+        super(normal_attributes) unless normal_attributes.empty?
       end
 
       # Instantiates objects for all attribute classes that needs more than one constructor parameter. This is done

@@ -14,22 +14,15 @@ describe "Accessible" do
     end
 
     it 'should have accessible attributes class method' do
-      @doc_class.accessible_attributes.should == [:name].to_set
+      @doc_class.accessible_attributes.to_a.should == ["name"]
     end
 
     it "should default accessible attributes to nil" do
-      Doc().accessible_attributes.should be_nil
+      Doc().accessible_attributes.should be_empty
     end
 
     it "should have accessible_attributes instance method" do
       @doc.accessible_attributes.should equal(@doc_class.accessible_attributes)
-    end
-
-    it "should raise error if there are protected attributes" do
-      doc = Doc('Post')
-      doc.attr_protected :admin
-      lambda { doc.attr_accessible :name }.
-        should raise_error(/Declare either attr_protected or attr_accessible for Post/)
     end
 
     it "should know if using accessible attributes" do
@@ -143,10 +136,10 @@ describe "Accessible" do
     end
 
     it "should share keys down the inheritance trail" do
-      GrandParent.accessible_attributes.should == [:name].to_set
-      Child.accessible_attributes.should == [:name, :position].to_set
-      GrandChild.accessible_attributes.should == [:name, :position].to_set
-      OtherChild.accessible_attributes.should == [:name, :favorite_color].to_set
+      GrandParent.accessible_attributes.to_a.should == ["name"]
+      Child.accessible_attributes.to_a.should == ["name", "position"]
+      GrandChild.accessible_attributes.to_a.should == ["name", "position"]
+      OtherChild.accessible_attributes.to_a.should == ["name", "favorite_color"]
     end
   end
 
@@ -167,11 +160,11 @@ describe "Accessible" do
     end
 
     it "should have accessible attributes class method" do
-      @edoc_class.accessible_attributes.should == [:name].to_set
+      @edoc_class.accessible_attributes.to_a.should == ["name"]
     end
 
     it "should default accessible attributes to nil" do
-      EDoc().accessible_attributes.should be_nil
+      EDoc().accessible_attributes.should be_empty
     end
 
     it "should have accessible attributes instance method" do

@@ -13,22 +13,15 @@ describe 'A document with protected attributes' do
   end
 
   it "should have protected attributes class method" do
-    @doc_class.protected_attributes.should == [:admin].to_set
+    @doc_class.protected_attributes.to_a.should == ["admin"]
   end
 
   it "should default protected attributes to nil" do
-    Doc().protected_attributes.should be_nil
+    Doc().protected_attributes.should be_empty
   end
 
   it "should have protected attributes instance method" do
     @doc.protected_attributes.should equal(@doc_class.protected_attributes)
-  end
-
-  it "should raise error if there are accessible attributes" do
-    doc = Doc('Post')
-    doc.attr_accessible :name
-    lambda { doc.attr_protected :admin }.
-      should raise_error(/Declare either attr_protected or attr_accessible for Post/)
   end
 
   it "should know if using protected attributes" do
@@ -39,7 +32,7 @@ describe 'A document with protected attributes' do
   it "should work with :protected shortcut when defining key" do
     Doc() do
       key :user_id, ObjectId, :protected => true
-    end.protected_attributes.should == [:user_id].to_set
+    end.protected_attributes.to_a.should == ["user_id"]
   end
 
   it "should assign protected attribute through accessor" do
@@ -140,10 +133,10 @@ describe "Single collection inherited protected attributes" do
   end
 
   it "should share keys down the inheritance trail" do
-    GrandParent.protected_attributes.should == [:site_id].to_set
-    Child.protected_attributes.should == [:site_id, :position].to_set
-    GrandChild.protected_attributes.should == [:site_id, :position].to_set
-    OtherChild.protected_attributes.should == [:site_id, :blog_id].to_set
+    GrandParent.protected_attributes.to_a.should == ["site_id"]
+    Child.protected_attributes.to_a.should == ["site_id", "position"]
+    GrandChild.protected_attributes.to_a.should == ["site_id", "position"]
+    OtherChild.protected_attributes.to_a.should == ["site_id", "blog_id"]
   end
 end
 
@@ -164,11 +157,11 @@ describe 'An embedded document with protected attributes' do
   end
 
   it "should have protected attributes class method" do
-    @edoc_class.protected_attributes.should == [:admin].to_set
+    @edoc_class.protected_attributes.to_a.should == ["admin"]
   end
 
   it "should default protected attributes to nil" do
-    EDoc().protected_attributes.should be_nil
+    EDoc().protected_attributes.should be_empty
   end
 
   it "should have protected attributes instance method" do

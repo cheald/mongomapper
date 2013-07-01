@@ -182,16 +182,20 @@ module MongoMapper
         !new? && !destroyed?
       end
 
-      def attributes=(attrs)
+      def attributes=(attrs, options = {})
         return if attrs == nil || attrs.blank?
 
-        attrs.each_pair do |key, value|
+        attrs.each do |key, value|
           if respond_to?(:"#{key}=")
             self.send(:"#{key}=", value)
           else
             self[key] = value
           end
         end
+      end
+
+      def assign_attributes(attributes, options = {})
+        self.send :attributes=, attributes, options
       end
 
       def to_mongo
