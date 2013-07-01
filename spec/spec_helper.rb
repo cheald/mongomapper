@@ -5,6 +5,7 @@ require 'bundler/setup'
 require 'fileutils'
 require 'mongo_mapper'
 require 'timecop'
+require 'rails'
 
 def Doc(name='Class', &block)
   klass = Class.new

@@ -8,13 +8,12 @@ module MongoMapper
       def assign_attributes(new_attributes = {}, options = {})
         return unless new_attributes.is_a?(Hash)
 
-        attributes                  = new_attributes.stringify_keys
         multi_parameter_attributes  = {}
         normal_attributes           = {}
 
-        attributes.each do |k, v|
-          if k.include?("(")
-            multi_parameter_attributes[k] = v
+        new_attributes.each do |k, v|
+          if k.to_s.include?("(")
+            multi_parameter_attributes[k.to_s] = v
           else
             normal_attributes[k] = v
           end
