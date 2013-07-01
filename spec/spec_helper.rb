@@ -24,6 +24,7 @@ if RUBY_PLATFORM != "java"
 end
 
 require 'mongo_mapper'
+require 'rails'
 
 def Doc(name='Class', &block)
   klass = Class.new

@@ -133,10 +133,10 @@ describe "Single collection inherited protected attributes" do
   end
 
   it "should share keys down the inheritance trail" do
-    GrandParent.protected_attributes.to_a.should == ["site_id"]
-    Child.protected_attributes.to_a.should == ["site_id", "position"]
-    GrandChild.protected_attributes.to_a.should == ["site_id", "position"]
-    OtherChild.protected_attributes.to_a.should == ["site_id", "blog_id"]
+    GrandParent.protected_attributes.to_a.should =~ ["site_id"]
+    Child.protected_attributes.to_a.should =~ ["site_id", "position"]
+    GrandChild.protected_attributes.to_a.should =~ ["site_id", "position"]
+    OtherChild.protected_attributes.to_a.should =~ ["site_id", "blog_id"]
   end
 end
 

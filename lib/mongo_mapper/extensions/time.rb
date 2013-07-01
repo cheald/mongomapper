@@ -8,8 +8,7 @@ module MongoMapper
         if !value || '' == value
           nil
         else
-          time_class = ::Time.zone || ::Time
-          time = value.is_a?(::Time) ? value : time_class.parse(value.to_s)
+          time = value.is_a?(::Time) ? value : (::Time.zone || ::Time).parse(value.to_s)
           at(time.to_f).utc if time # ensure milliseconds are preserved with to_f (issue #308)
         end
       end

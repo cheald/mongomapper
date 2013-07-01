@@ -136,10 +136,10 @@ describe "Accessible" do
     end
 
     it "should share keys down the inheritance trail" do
-      GrandParent.accessible_attributes.to_a.should == ["name"]
-      Child.accessible_attributes.to_a.should == ["name", "position"]
-      GrandChild.accessible_attributes.to_a.should == ["name", "position"]
-      OtherChild.accessible_attributes.to_a.should == ["name", "favorite_color"]
+      GrandParent.accessible_attributes.to_a.should =~ ["name"]
+      Child.accessible_attributes.to_a.should =~ ["name", "position"]
+      GrandChild.accessible_attributes.to_a.should =~ ["name", "position"]
+      OtherChild.accessible_attributes.to_a.should =~ ["name", "favorite_color"]
     end
   end
 

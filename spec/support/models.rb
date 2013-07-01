@@ -257,7 +257,6 @@ end
 
 class Topic
   include MongoMapper::Document
-  plugin MongoMapper::Plugins::MultiParameterAttributes
 
   key :title,       String
   key :last_read,   Date
