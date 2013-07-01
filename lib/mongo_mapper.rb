@@ -61,6 +61,7 @@ module MongoMapper
     autoload :Userstamps,         'mongo_mapper/plugins/userstamps'
     autoload :Validations,        'mongo_mapper/plugins/validations'
     autoload :Touch,              'mongo_mapper/plugins/touch'
+    autoload :MultiParameterAttributes, 'mongo_mapper/plugins/multi_parameter_attributes'
 
     module Associations
       autoload :Base,                         'mongo_mapper/plugins/associations/base'
