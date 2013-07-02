@@ -42,9 +42,9 @@ module MongoMapper
         def assign_attributes(attributes = {}, options = {})
           return if attributes.nil? or attributes.empty?
           @mass_assignment_options = options
-          attributes = sanitize_for_mass_assignment(attributes, mass_assignment_role) unless mass_assignment_options[:without_protection]
+          attributes = __sanitize(attributes) unless mass_assignment_options[:without_protection]
           @mass_assignment_options = nil
-          super sanitize_for_mass_assignment(attributes), options
+          super attributes, options
         end
 
         protected
@@ -56,6 +56,17 @@ module MongoMapper
 
         def mass_assignment_role
           mass_assignment_options[:as] || :default
+        end
+
+        def __sanitize(attributes)
+          @sanitize_arity ||= method(:sanitize_for_mass_assignment).arity
+          # Rails 3.0.x
+          if @sanitize_arity == 1
+            sanitize_for_mass_assignment(attributes)
+          # Rails 3.1.x+_
+          else
+            sanitize_for_mass_assignment(attributes, mass_assignment_role)
+          end
         end
       else
         # 4.0-style. Including the protected_attributes gem will restore 3.x-style functionality.
