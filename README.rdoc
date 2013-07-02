@@ -1,3 +1,5 @@
+{<img src="https://travis-ci.org/cheald/mongomapper.png?branch=ar_parity" alt="Build Status" />}[https://travis-ci.org/cheald/mongomapper]
+
 = MongoMapper
 
 A Ruby Object Mapper for Mongo.
