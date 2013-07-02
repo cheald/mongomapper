@@ -87,7 +87,7 @@ module MongoMapper
           def create_accessors_for(key)
             accessors_module.module_eval <<-end_eval
               def #{key.name}
-                read_key(:#{key.name})
+                read_key(:#{key.name}, :@#{key.name})
               end
 
               def #{key.name}=(value)
@@ -95,7 +95,7 @@ module MongoMapper
               end
 
               def #{key.name}?
-                read_key(:#{key.name}).present?
+                read_key(:#{key.name}, :@#{key.name}).present?
               end
             end_eval
 
@@ -188,10 +188,10 @@ module MongoMapper
 
       def assign_attributes(attributes, options = {})
         return if attributes == nil || attributes.blank?
-
         attributes.each do |key, value|
-          if respond_to?(:"#{key}=")
-            self.send(:"#{key}=", value)
+          setter = :"#{key}="
+          if respond_to?(setter)
+            self.send(setter, value)
           else
             self[key] = value
           end
@@ -201,9 +201,9 @@ module MongoMapper
       def to_mongo
         BSON::OrderedHash.new.tap do |attrs|
           keys.each do |name, key|
-            if key.type == ObjectId || !self[key.name].nil?
-              value = key.set(self[key.name])
-              attrs[name] = value
+            value = instance_variable_get :"@#{key.name}"
+            if key.type == ObjectId || !value.nil?
+              attrs[name] = key.set(value)
             end
           end
 
@@ -259,8 +259,7 @@ module MongoMapper
         self.class.keys
       end
 
-      def read_key(key_name)
-        instance_key = :"@#{key_name}"
+      def read_key(key_name, instance_key = :"@#{key_name}")
         if instance_variable_defined? instance_key
           instance_variable_get instance_key
         elsif key = keys[key_name.to_s]

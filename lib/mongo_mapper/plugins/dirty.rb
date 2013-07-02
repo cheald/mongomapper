@@ -50,8 +50,8 @@ module MongoMapper
         end
       end
 
-      def attribute_value_changed?(key_name)
-        changed_attributes[key_name] != instance_variable_get(:"@#{key_name}")
+      def attribute_value_changed?(attr)
+        changed_attributes[attr] != instance_variable_get("@#{attr}")
       end
     end
   end
