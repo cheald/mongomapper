@@ -10,14 +10,12 @@ module MongoMapper
 
       module ClassMethods
         def scope(name, scope = method(name))
-          if MongoMapper.rails4?
-            ActiveSupport::Deprecation.warn(
-              "Using #scope without passing a callable object is deprecated. For " \
-              "example `scope :red, where(color: 'red')` should be changed to " \
-              "`scope :red, -> { where(color: 'red') }`. (If you prefer, you can " \
-              "just define a class method named `self.red`.)"
-            ) unless scope.nil? or scope.respond_to?(:call)
-          end
+          ActiveSupport::Deprecation.warn(
+            "Using #scope without passing a callable object is deprecated. For " \
+            "example `scope :red, where(color: 'red')` should be changed to " \
+            "`scope :red, -> { where(color: 'red') }`. (If you prefer, you can " \
+            "just define a class method named `self.red`.)"
+          ) if MongoMapper.rails4? and !scope.respond_to?(:call)
 
           # Assign to _scopes instead of using []= to avoid mixing subclass scopes
           scope_proc = lambda do |*args|
