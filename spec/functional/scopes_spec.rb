@@ -10,30 +10,86 @@ describe "Scopes" do
       end
     end
 
+    let(:bill)  { @document.create(:name => 'Bill',  :age => 10) }
+    let(:frank) { @document.create(:name => 'Frank', :age => 15) }
+    let(:john)  { @document.create(:name => 'John',  :age => 99) }
+    let(:todd)  { @document.create(:name => 'Todd',  :age => 65) }
+
+    def make_people
+      john; frank; bill; todd
+    end
+
+    context "scopes without a callable" do
+      subject {
+        lambda {
+          @document.class_eval {
+            scope :old, :age.gt => 90
+          }
+        }
+      }
+
+      context "under Rails 4" do
+        it "should raise a deprecation notice" do
+          ActiveSupport::Deprecation.should_receive(:warn).once
+          subject.call
+        end
+      end if rails4?
+
+      context "under Rails 3" do
+        it "should not raise a deprecation notice" do
+          ActiveSupport::Deprecation.should_not_receive(:warn)
+          subject.call
+        end
+      end unless rails4?
+    end
+
     context "basic scopes" do
       before do
         @document.class_eval do
-          scope :old, :age.gt => 60
-          scope :teens, :age.gte => 13, :age.lte => 19
+          scope :old, lambda {{ :age.gt => 90 }}
+          scope :teens, lambda {{ :age.gte => 13, :age.lte => 19 }}
         end
       end
 
       it "should know what scopes have been added" do
-        @document.scopes.size.should == 2
-        @document.scopes.keys.map(&:to_s).sort.should == %w(old teens)
+        @document.scopes.keys.should =~ [:old, :teens]
       end
 
       it "should return a plucky query" do
         @document.old.should be_kind_of(Plucky::Query)
       end
 
-      it "should work" do
-        @document.create(:name => 'John', :age => 99)
-        @document.create(:name => 'Frank', :age => 15)
-        docs = @document.old.all
-        docs.size.should == 1
-        docs[0].name.should == 'John'
+      specify { make_people; @document.old.all.should == [john] }
+    end
+
+    context "scopes given only the name" do
+      before do
+        @document.instance_eval do
+          def old
+            {:age.gt => 90}
+          end
+
+          def old_returning_query
+            where(:age.gt => 90)
+          end
+        end
+
+        @document.class_eval do
+          scope :old
+          scope :old_returning_query
+        end
       end
+
+      it "should return a plucky query" do
+        @document.old.should be_kind_of(Plucky::Query)
+      end
+
+      it "should return a plucky query" do
+        @document.old_returning_query.should be_kind_of(Plucky::Query)
+      end
+
+      specify { make_people; @document.old.all.should == [john] }
+      specify { make_people; @document.old_returning_query.all.should == [john] }
     end
 
     context "dynamic scopes" do
@@ -43,48 +99,32 @@ describe "Scopes" do
           scope :ages,    lambda { |low, high| {:age.gte => low, :age.lte => high} }
           scope :ordered, lambda { |sort| sort(sort) }
         end
+        make_people
       end
 
       it "should work with single argument" do
-        @document.create(:name => 'John', :age => 60)
-        @document.create(:name => 'Frank', :age => 50)
-        docs = @document.age(60).all
-        docs.size.should == 1
-        docs.first.name.should == 'John'
+        @document.age(john.age).all.should == [john]
       end
 
       it "should work with multiple arguments" do
-        @document.create(:name => 'John', :age => 60)
-        @document.create(:name => 'Frank', :age => 50)
-        @document.create(:name => 'Bill', :age => 40)
-        docs = @document.ages(50, 70).all
-        docs.size.should == 2
-        docs.map(&:name).sort.should == %w(Frank John)
+        @document.ages(frank.age - 1, john.age + 1).all.should =~ [frank, todd, john]
       end
 
       it "should work with queries" do
-        john  = @document.create(:name => 'John', :age => 60)
-        frank = @document.create(:name => 'Frank', :age => 50)
-        bill  = @document.create(:name => 'Bill', :age => 40)
-        @document.ordered(:age).all.should == [bill, frank, john]
+        @document.ordered(:age).all.should == [bill, frank, todd, john]
       end
     end
 
     context "query scopes" do
       before do
         @document.class_eval do
-          scope :boomers, where(:age.gte => 60).sort(:age)
+          scope :boomers, lambda { where(:age.gte => 60).sort(:age) }
         end
+        make_people
       end
 
       it "should work" do
-        todd = @document.create(:name => 'Todd', :age => 65)
-        john = @document.create(:name => 'John', :age => 60)
-        @document.create(:name => 'Frank', :age => 50)
-        @document.create(:name => 'Bill', :age => 40)
-        docs = @document.boomers.all
-        docs[0].should == john
-        docs[1].should == todd
+        @document.boomers.all.should =~ [john, todd]
       end
     end
 
@@ -94,38 +134,28 @@ describe "Scopes" do
           scope :by_age,  lambda { |age| {:age => age} }
           scope :by_name, lambda { |name| {:name => name} }
         end
+        make_people
       end
 
       it "should work with scope methods" do
-        @document.create(:name => 'John', :age => 60)
-        @document.create(:name => 'Frank', :age => 60)
-        @document.create(:name => 'Bill', :age => 50)
-        docs = @document.by_age(60).by_name('John').all
-        docs.size.should == 1
-        docs.first.name.should == 'John'
+        @document.by_age(99).by_name('John').all.should == [john]
       end
 
       it "should work on query methods" do
-        @document.create(:name => 'John', :age => 60)
-        @document.create(:name => 'John', :age => 50)
-        @document.create(:name => 'Bill', :age => 50)
-        docs = @document.where(:name => 'John').by_age(50).all
-        docs.size.should == 1
-        docs.first.age.should == 50
+        @document.where(:name => 'John').by_age(99).all.should == [john]
       end
 
       context "with model methods" do
         it "should work if method returns a query" do
-          @document.create(:name => 'John', :age => 10)
-          @document.create(:name => 'John', :age => 20)
+          young_john = @document.create(:name => 'John', :age => 10)
           @document.class_eval do
             def self.young
               query(:age.lte => 12)
             end
           end
-          docs = @document.by_name('John').young.all
-          docs.size.should == 1
-          docs.first.age.should == 10
+
+          @document.by_name('John').all.should =~ [john, young_john]
+          @document.by_name('John').young.all.should == [young_john]
         end
 
         it "should not work if method does not return a query" do

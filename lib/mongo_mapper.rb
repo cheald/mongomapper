@@ -86,6 +86,10 @@ module MongoMapper
   end
 
   extend Connection
+
+  def self.rails4?
+    Rails.version =~ /^4/
+  end
 end
 
 Dir[File.join(File.dirname(__FILE__), 'mongo_mapper', 'extensions', '*.rb')].each do |extension|

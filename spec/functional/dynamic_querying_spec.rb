@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "Dynamic Querying" do
   before do
     @document = Doc do
-      scope :nunes, where(:last_name => 'Nunemaker')
+      scope :nunes, lambda { where(:last_name => 'Nunemaker') }
 
       key :first_name, String
       key :last_name, String

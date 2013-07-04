@@ -26,6 +26,10 @@ end
 require 'mongo_mapper'
 require 'rails'
 
+def rails4?
+  MongoMapper.rails4?
+end
+
 def Doc(name='Class', &block)
   klass = Class.new
   klass.class_eval do

@@ -138,7 +138,7 @@ end
 class Status
   include MongoMapper::Document
 
-  scope :complete, where(:name => 'Complete')
+  scope :complete, lambda { where(:name => 'Complete') }
 
   def self.by_position(position)
     where(:position => position)
