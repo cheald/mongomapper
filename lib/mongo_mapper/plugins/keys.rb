@@ -292,9 +292,13 @@ module MongoMapper
 
           # Init the keys ivar. Due to the volume of times this method is called, we don't want it in a method.
           @_mm_keys ||= self.class.keys
+          @__deferred_associations ||= {}
 
           attrs.each do |key, value|
-            if !@_mm_keys.key?(key) && respond_to?(:"#{key}=")
+            s_key = key.to_sym
+            if associations.key?(s_key)
+              @__deferred_associations[s_key] = value
+            elsif !@_mm_keys.key?(key) && respond_to?(:"#{key}=")
               self.send(:"#{key}=", value)
             else
               internal_write_key key, value, false

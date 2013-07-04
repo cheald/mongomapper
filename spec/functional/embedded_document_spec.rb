@@ -52,6 +52,18 @@ describe "EmbeddedDocument" do
     end
   end
 
+  context "Loading a document with a key that is an embedded document" do
+    before do
+      doc = @klass.create(:pets => [@pet_klass.new(:name => "binky")])
+      @doc = @klass.find(doc._id)
+    end
+
+    it "should assign _parent_document and _root_document" do
+      @doc.pets[0]._parent_document.should be(@doc)
+      @doc.pets[0]._root_document.should be(@doc)
+    end
+  end
+
   it "should correctly instantiate single collection inherited embedded documents" do
     document = Doc('Foo') do
       key :message, Message
