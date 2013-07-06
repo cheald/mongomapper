@@ -88,7 +88,7 @@ module MongoMapper
   extend Connection
 
   def self.rails4?
-    Rails.version =~ /^4/
+    Rails::VERSION::MAJOR >= 4
   end
 end
 
