@@ -291,10 +291,10 @@ module MongoMapper
           return if attrs == nil || attrs.blank?
 
           # Init the keys ivar. Due to the volume of times this method is called, we don't want it in a method.
-          @_mm_keys ||= self.class.keys
+          @__mm_keys ||= self.class.keys
 
           attrs.each do |key, value|
-            if !@_mm_keys.key?(key) && respond_to?(:"#{key}=")
+            if !@__mm_keys.key?(key) && respond_to?(:"#{key}=")
               self.send(:"#{key}=", value)
             else
               internal_write_key key, value, false
@@ -315,8 +315,8 @@ module MongoMapper
         end
 
         def internal_write_key(name, value, cast = true)
-          @_mm_keys ||= self.class.keys
-          key         = @_mm_keys[name] || self.class.key(name)
+          @__mm_keys ||= self.class.keys
+          key         = @__mm_keys[name] || self.class.key(name)
           as_mongo    = cast ? key.set(value) : value
           as_typecast = key.get(as_mongo)
           if key.embeddable?
@@ -328,8 +328,8 @@ module MongoMapper
         end
 
         def initialize_default_values(except = {})
-          @_mm_default_keys ||= self.class.keys.values.select(&:default?)
-          @_mm_default_keys.each do |key|
+          @__mm_default_keys ||= self.class.keys.values.select(&:default?)
+          @__mm_default_keys.each do |key|
             if !(except && except.key?(key.name))
               internal_write_key key.name, key.default_value, false
             end

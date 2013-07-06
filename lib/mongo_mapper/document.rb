@@ -4,9 +4,9 @@ module MongoMapper
     extend ActiveSupport::Concern
     extend Plugins
 
+    include Plugins::Dumpable
     include Plugins::ActiveModel
     include Plugins::Document
-    include Plugins::Dumpable
     include Plugins::Querying # for now needs to be before associations (save_to_collection)
     include Plugins::Associations
     include Plugins::Caching
@@ -25,6 +25,7 @@ module MongoMapper
     include Plugins::Protected
     include Plugins::Rails
     include Plugins::Safe # needs to be after querying (save_to_collection)
+    include Plugins::WithPersistenceOptions # Should come before Sci and IdentityMap and anything else that overrides things like Querying#find_one
     include Plugins::Sci
     include Plugins::Scopes
     include Plugins::Serialization
