@@ -10,7 +10,13 @@ module MongoMapper
         else
           time_class = ::Time.zone || ::Time
           time = value.is_a?(::Time) ? value : time_class.parse(value.to_s)
-          at(time.to_f).utc if time # ensure milliseconds are preserved with to_f (issue #308)
+          if time
+            # Time#to_f seems to automatically round on 1.9+, so we can construct the fractional time manually
+            f_time = time.tv_sec + (time.usec / 1000000.0)
+
+            # Then round it to 3 decimals
+            at((f_time * 1000.0).to_i / 1000.0).utc
+          end
         end
       end
 
@@ -21,6 +27,7 @@ module MongoMapper
           value
         end
       end
+
     end
   end
 end
