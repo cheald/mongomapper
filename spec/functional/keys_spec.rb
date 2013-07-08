@@ -4,6 +4,7 @@ describe "Keys" do
   describe "with aliases" do
     AliasedKeyModel = Doc do
       key :foo, :abbr => :f
+      key :with_underscores, :abbr => "with-hyphens"
       key :bar
     end
 
@@ -32,6 +33,14 @@ describe "Keys" do
           json.should have_key "foo"
           json.should_not have_key "f"
         end
+      end
+    end
+
+    context "given field which are not valid Ruby method names" do
+      before { AliasedKeyModel.create(:with_underscores => "foobar") }
+      it "should work" do
+        AliasedKeyModel.first.with_underscores.should == "foobar"
+        AliasedKeyModel.collection.find_one["with-hyphens"].should == "foobar"
       end
     end
 
