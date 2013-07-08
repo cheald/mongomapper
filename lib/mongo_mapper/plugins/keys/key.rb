@@ -15,7 +15,7 @@ module MongoMapper
           self.options = (options_from_args || {}).symbolize_keys
           @ivar = :"@#{name}"  # Optimization - used to avoid spamming #intern from internal_write_keys
           @embeddable = nil
-          if abbr = @options[:abbr] || @options[:alias]
+          if abbr = @options[:abbr] || @options[:alias] || @options[:field_name]
             @abbr = abbr.to_s
           end
 

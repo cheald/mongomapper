@@ -4,7 +4,8 @@ describe "Keys" do
   describe "with aliases" do
     AliasedKeyModel = Doc do
       key :foo, :abbr => :f
-      key :with_underscores, :abbr => "with-hyphens"
+      key :with_underscores, :alias => "with-hyphens"
+      key :field_name, :field_name => "alternate_field_name"
       key :bar
     end
 
@@ -41,6 +42,14 @@ describe "Keys" do
       it "should work" do
         AliasedKeyModel.first.with_underscores.should == "foobar"
         AliasedKeyModel.collection.find_one["with-hyphens"].should == "foobar"
+      end
+    end
+
+    context "given a field aliased with :field_name" do
+      before { AliasedKeyModel.create(:field_name => "foobar") }
+      it "should work" do
+        AliasedKeyModel.first.field_name.should == "foobar"
+        AliasedKeyModel.collection.find_one["alternate_field_name"].should == "foobar"
       end
     end
 
