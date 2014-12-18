@@ -356,10 +356,11 @@ module MongoMapper
       end
 
       def read_key(key_name)
+        init_ivars if @__mm_keys.nil?
         key_name_sym = key_name.to_sym
         if @_dynamic_attributes && @_dynamic_attributes.key?(key_name_sym)
           @_dynamic_attributes[key_name_sym]
-        elsif key = keys[key_name.to_s]
+        elsif key = @__mm_keys[key_name.to_s]
           if key.ivar && instance_variable_defined?(key.ivar)
             value = instance_variable_get(key.ivar)
           else
